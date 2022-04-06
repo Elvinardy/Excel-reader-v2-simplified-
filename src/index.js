@@ -1,17 +1,43 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { useState } from "react";
+import ReactDOM from "react-dom";
+import { OutTable, ExcelRenderer } from "react-excel-renderer";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+import "./styles.css";
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+function App() {
+  const [file, setFile] = useState(null);
+
+  const fileHandler = e => {
+    let fileObj = e.target.files[0];
+    console.log(fileObj);
+
+    //just pass the fileObj as parameter
+    ExcelRenderer(fileObj, (err, resp) => {
+      if (err) {
+        console.log(err);
+      } else {
+        setFile({
+          cols: resp.cols,
+          rows: resp.rows
+        });
+      }
+    });
+  };
+
+  return (
+    <div className="App">
+      <input type="file" onChange={fileHandler} />
+      {file && (
+        <OutTable
+          data={file.rows}
+          columns={file.cols}
+          tableClassName="table"
+          tableHeaderRowClass="heading"
+        />
+      )}
+    </div>
+  );
+}
+
+const rootElement = document.getElementById("root");
+ReactDOM.render(<App />, rootElement);
